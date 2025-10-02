@@ -4,7 +4,7 @@ import { GeometricShape } from './GeometricShape';
 
 // Constants for board dimensions, must match useRaceLogic.ts
 const LEVEL_WIDTH = 450;
-const VIEWPORT_HEIGHT = 800; // The fixed height of the camera's view during a race
+const VIEWPORT_HEIGHT =600; // The fixed height of the camera's view during a race
 const ERASE_THRESHOLD = 15; // Proximity in pixels to select a wall for deletion
 const SPEED_LINE_THRESHOLD = 7; // Min speed to show lines
 const INDICATOR_OFFSET = 20;

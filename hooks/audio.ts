@@ -1,5 +1,5 @@
 let audioContext: AudioContext | null = null;
-let isMusicPlaying = false;
+let isMusicPlaying = true;
 let musicInterval: number | null = null;
 let musicOscillator: OscillatorNode | null = null;
 let musicGainNode: GainNode | null = null;
@@ -10,7 +10,37 @@ let breakSoundBuffer: AudioBuffer | null = null;
 
 
 // A minor pentatonic scale for a pleasant, ambient feel
-const notes = [220.00, 261.63, 293.66, 329.63, 392.00]; // A3, C4, D4, E4, G4
+const notes =  [
+    // --- Octave 2 ---
+    110.00, // A2
+    123.47, // B2
+    130.81, // C3
+    146.83, // D3
+    164.81, // E3
+    174.61, // F3
+    196.00, // G3
+
+    // --- Octave 3 (Your original was mostly in here) ---
+    220.00, // A3
+    246.94, // B3
+    261.63, // C4
+    293.66, // D4
+    329.63, // E4
+    349.23, // F4
+    392.00, // G4
+
+    // --- Octave 4 ---
+    440.00, // A4
+    493.88, // B4
+    523.25, // C5
+    587.33, // D5
+    659.26, // E5
+    698.46, // F5
+    783.99, // G5
+
+    // --- High A for resolution ---
+    880.00  // A5
+];
 let currentNoteIndex = 0;
 
 const initializeAudio = () => {

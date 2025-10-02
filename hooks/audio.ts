@@ -4,10 +4,14 @@ let musicInterval: number | null = null;
 let musicOscillator: OscillatorNode | null = null;
 let musicGainNode: GainNode | null = null;
 
+// Buffers for the two separate sound files
+let bounceSoundBuffer: AudioBuffer | null = null;
+let breakSoundBuffer: AudioBuffer | null = null;
+
+
 // A minor pentatonic scale for a pleasant, ambient feel
 const notes = [220.00, 261.63, 293.66, 329.63, 392.00]; // A3, C4, D4, E4, G4
 let currentNoteIndex = 0;
-
 
 const initializeAudio = () => {
   if (typeof window !== 'undefined' && !audioContext) {
@@ -33,59 +37,66 @@ export const ensureAudioContext = () => {
 }
 
 /**
- * Plays a short, procedurally generated bounce sound.
- * @param volume - The volume of the sound (0.0 to 1.0).
- * @param frequency - The pitch of the sound in Hz.
+ * Loads the two sound files into AudioBuffers.
+ * Assumes bounce.mp3 and break.mp3 are in the /public folder.
  */
-export const playBounceSound = (volume: number = 0.3, frequency: number = 440) => {
-  if (!audioContext || audioContext.state !== 'running') {
-    return;
+export const loadSounds = async () => {
+  if (!audioContext || (bounceSoundBuffer && breakSoundBuffer)) {
+    return; // Already loaded or no audio context
   }
 
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
+  try {
+    // Fetch and decode bounce sound
+    const bounceResponse = await fetch('/bounce.mp3');
+    const bounceArrayBuffer = await bounceResponse.arrayBuffer();
+    bounceSoundBuffer = await audioContext.decodeAudioData(bounceArrayBuffer);
 
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
+    // Fetch and decode break sound
+    const breakResponse = await fetch('/break.mp3');
+    const breakArrayBuffer = await breakResponse.arrayBuffer();
+    breakSoundBuffer = await audioContext.decodeAudioData(breakArrayBuffer);
 
-  // Sound parameters
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-  gainNode.gain.setValueAtTime(Math.max(0, volume), audioContext.currentTime);
-
-  // Quick fade out to create a "boop" sound
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.2);
-
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.2);
+    console.log("Custom sound files loaded successfully!");
+  } catch (e) {
+    console.error("Error loading custom sound files. Make sure 'bounce.mp3' and 'break.mp3' are in a 'public' folder.", e);
+  }
 };
 
 /**
- * Plays a lower, sharper sound for breaking an obstacle.
+ * Plays a sound from a loaded AudioBuffer.
  * @param volume - The volume of the sound (0.0 to 1.0).
- * @param frequency - The pitch of the sound in Hz.
+ * @param buffer - The AudioBuffer to play.
  */
-export const playBreakSound = (volume: number = 0.4, frequency: number = 220) => {
-  if (!audioContext || audioContext.state !== 'running') {
+const playSoundFromBuffer = (volume: number, buffer: AudioBuffer | null) => {
+  if (!audioContext || audioContext.state !== 'running' || !buffer) {
     return;
   }
 
-  const oscillator = audioContext.createOscillator();
+  const source = audioContext.createBufferSource();
+  source.buffer = buffer;
+
   const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  // Sound parameters
-  oscillator.type = 'triangle';
-  oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
   gainNode.gain.setValueAtTime(Math.max(0, volume), audioContext.currentTime);
 
-  // Faster decay for a "thud" or "break" sound
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.15);
+  source.connect(gainNode);
+  gainNode.connect(audioContext.destination);
 
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.15);
+  source.start(0); // Play the sound from the beginning
+};
+
+
+/**
+ * Plays the bounce sound from the loaded file.
+ */
+export const playBounceSound = (volume: number = 0.5) => {
+  playSoundFromBuffer(volume, bounceSoundBuffer);
+};
+
+/**
+ * Plays the break sound from the loaded file.
+ */
+export const playBreakSound = (volume: number = 0.6) => {
+  playSoundFromBuffer(volume, breakSoundBuffer);
 };
 
 const playNextNote = () => {

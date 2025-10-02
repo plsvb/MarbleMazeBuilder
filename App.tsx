@@ -3,7 +3,7 @@ import { useRaceLogic } from './hooks/useRaceLogic';
 import RaceBoard from './components/RaceBoard';
 import WinnerModal from './components/WinnerModal';
 import { LineWall, RacerId, BuildTool, RandomShapeType } from './types';
-import { ensureAudioContext, toggleBackgroundMusic } from './hooks/audio';
+import { ensureAudioContext, toggleBackgroundMusic, loadSounds } from './hooks/audio';
 
 // Constants from useRaceLogic to be used in maze generation
 const LEVEL_WIDTH = 450;
@@ -143,6 +143,7 @@ const App: React.FC = () => {
 
   const handleLockMaze = () => {
     ensureAudioContext();
+    loadSounds(); // Load custom sounds when the user is ready to play
     setGameState('idle');
   }
 

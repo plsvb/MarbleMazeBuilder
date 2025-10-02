@@ -112,7 +112,7 @@ export const useRaceLogic = ({ levelHeight }: { levelHeight: number }) => {
       // Board boundary collision
       if (x - radius < 0 || x + radius > LEVEL_WIDTH) {
         if (Math.abs(vx) > 0.5) {
-            playBounceSound(0.2, 300 + Math.random() * 200);
+            playBounceSound(0.2);
         }
         vx *= -RESTITUTION;
         x = x - radius < 0 ? radius : LEVEL_WIDTH - radius;
@@ -165,9 +165,9 @@ export const useRaceLogic = ({ levelHeight }: { levelHeight: number }) => {
 
             if (impactVolume > 0.05) {
                 if (currentTouchCount === 0) { // First hit
-                    playBounceSound(impactVolume, 400 + Math.random() * 300);
+                    playBounceSound(impactVolume);
                 } else if (currentTouchCount === 1) { // Second hit
-                    playBreakSound(impactVolume * 1.5, 200 + Math.random() * 100);
+                    playBreakSound(impactVolume * 1.5);
                 }
             }
             

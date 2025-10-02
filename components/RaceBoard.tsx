@@ -174,7 +174,20 @@ const RaceBoard: React.FC<RaceBoardProps> = ({ racers, walls, particles, isBuild
     viewBox = `0 0 ${LEVEL_WIDTH} ${levelHeight}`;
   } else {
     // In race mode, use a scrolling viewport that follows the camera.
-    const viewboxY = Math.max(0, Math.min(levelHeight - VIEWPORT_HEIGHT, cameraY - VIEWPORT_HEIGHT / 2));
+    // Start with the camera-centered viewbox.
+    let viewboxY = Math.max(0, Math.min(levelHeight - VIEWPORT_HEIGHT, cameraY - VIEWPORT_HEIGHT / 2));
+
+    // If racers start above the current viewport (common at race start), nudge the view up so they are visible.
+    // We use the minimum racer Y (the one highest on the track) and a small margin.
+    if (racers.length > 0) {
+      const MARGIN = 40;
+      const minRacerY = Math.min(...racers.map(r => r.y));
+      // If the highest racer is above the top edge (within margin), lift the viewport to include it.
+      if (minRacerY < viewboxY + MARGIN) {
+        viewboxY = Math.max(0, Math.min(levelHeight - VIEWPORT_HEIGHT, minRacerY - MARGIN));
+      }
+    }
+
     viewBox = `0 ${viewboxY} ${LEVEL_WIDTH} ${VIEWPORT_HEIGHT}`;
     viewboxYForIndicators = viewboxY;
   }
